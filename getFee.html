@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Opensea Fee Reader</title>
+    <meta name="description" content="Read opensea fee before buying">
+    <link rel="stylesheet" type="text/css" href="theme.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="App">
+      <div id="Intro">請輸入Opensea 商品的網址<br>ex: https://opensea.io/assets/0x90cfce78f5ed32f9490fd265d16c77a8b5320bd4/94</div>
+      <input id="userInput" type="text"></input>
+      <button id="getFeeBtn">取得版稅資訊</button>
+      <div id="OpenseaFee"></div>
+    </div>
+  </body>
+  <script>
+    function isHex(h) {
+      var re = /[0-9A-Fa-f]{6}/g;
+      if (re.test(h)) {
+        return true;
+      }
+      return false;
+    }
+
+    $('#getFeeBtn').on('click', () => {
+      var url = $('#userInput').val()
+      var urlSplit = url.split('/')
+      var id = urlSplit[urlSplit.length - 1];
+      var contract = urlSplit[urlSplit.length -2];
+      if (isNaN(id) || !isHex(contract)) {
+        $('#OpenseaFee').text('網址格式錯誤喔!!');
+      }
+      $.get(`https://api.opensea.io/api/v1/asset/${contract}/${id}/`, (data) => {
+        $('#OpenseaFee').html(
+          `項目: ${data.asset_contract.name}<br>
+          創作者版稅: ${data.collection.dev_seller_fee_basis_points/100}%<br>
+          Opensea版稅: ${data.collection.opensea_seller_fee_basis_points/100}%`
+        );
+      })
+    })
+  </script>
+  <style>
+    html, body, #App{
+      margin:0;
+      height:100%;
+      width:100%;
+      background: black;
+    }
+    #App{
+      display:flex;
+      flex-direction: column;
+      justify-content:center;
+      align-items:flex-start;
+      max-width:1024px;
+      margin:auto;
+      gap: 30px;
+      color:white;
+      font-family: 'Microsoft JhengHei';
+      font-weight: 700;
+    }
+    #Intro{
+      font-size:26px;
+    }
+    #userInput{
+      width:100%;
+    }
+    @font-face {
+      font-family: 'Microsoft JhengHei';
+      src: url('./fonts/微軟正黑體.ttf') format('opentype');
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+</html>
